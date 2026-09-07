@@ -1,0 +1,27 @@
+name: JARVIS Code Check
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout JARVIS
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile Python files
+        run: |
+          python -m compileall -q core tools jarvis.py
+
+      - name: JARVIS Check Passed
+        run: echo "JARVIS GitHub automation check passed."
