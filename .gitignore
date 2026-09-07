@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.env
+
+# Secrets
+*.env
+.jarvis_env
+*.key
+*.pem
+
+# Runtime data
+logs/
+data/memory/
+data/automation/
+data/agent/
+
+# Generated files
+tools/coding_workspace/
+
+# Temporary files
+*.tmp
+*.bak
+.DS_Store
+
+# Old JARVIS backup copies
+jarvis_backup.py
+jarvis_before_*.py
+
+# Accidental duplicate filenames
+jarvis.py 
+jarvis.py*
