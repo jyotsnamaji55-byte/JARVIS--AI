@@ -2,6 +2,7 @@ from tools.registry.manager import ToolRegistry
 from tools.coding_engine import generate_and_validate, save_generated_code, read_code
 from tools.registry.github import register_github_tools
 from tools.registry.self_upgrade import register_self_upgrade_tools
+from tools.calculator import calculate
 
 
 def create_default_registry():
@@ -23,6 +24,12 @@ def create_default_registry():
         "read_code",
         "Read a file from the coding workspace.",
         read_code
+    )
+
+    registry.register(
+        "calculator",
+        "Safely calculate basic arithmetic expressions.",
+        calculate
     )
 
     register_github_tools(registry)

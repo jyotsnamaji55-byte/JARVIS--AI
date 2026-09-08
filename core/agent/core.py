@@ -76,12 +76,27 @@ class AgentCore:
             elif tool_name == "self_upgrade_prepare":
                 arguments = (goal,)
 
+            elif tool_name == "calculator":
+                expression = goal
+
+                for prefix in [
+                    "calculate ",
+                    "calculator ",
+                    "calc "
+                ]:
+                    if expression.lower().startswith(prefix):
+                        expression = expression[len(prefix):].strip()
+                        break
+
+                arguments = (expression,)
+
             else:
                 execution = {
                     "success": False,
                     "tool": tool_name,
                     "error": "Automatic arguments are not implemented yet."
                 }
+
                 results.append(execution)
 
                 self.state.save(
