@@ -123,13 +123,25 @@ def ask_jarvis(message):
 
         last = result["history"][-1]["result"]
 
-        return (
+        summary = (
             "JARVIS: Agentic loop completed successfully.\n\n"
             f"Goal: {goal}\n"
             f"Iterations: {result['iterations']}\n"
             f"Tools: {last['agent']['tools']}\n"
             f"Plan steps: {len(last['agent']['plan'])}\n"
         )
+
+        for execution in last['agent'].get('results', []):
+            tool_result = execution.get('result')
+
+            if (
+                execution.get('tool') == 'calculator'
+                and isinstance(tool_result, dict)
+                and tool_result.get('success') is True
+            ):
+                summary += f"Result: {tool_result.get('result')}\n"
+
+        return summary
 
     memory_context = build_memory_context(message)
 
