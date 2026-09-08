@@ -4,6 +4,7 @@ from tools.self_upgrade.planner import UpgradePlanner
 from tools.self_upgrade.generator import generate_upgrade
 from tools.self_upgrade.inspector import read_project_file
 from tools.code_checker import check_python_code
+from tools.self_upgrade.runtime_verifier import verify_python_runtime
 from tools.self_upgrade.applier import apply_upgrade, rollback_upgrade
 from tools.self_upgrade.approval import request_approval
 from tools.self_upgrade.diff import create_diff
@@ -47,13 +48,22 @@ class SelfUpgradeEngine:
 
         proposed_code = generated["code"]
 
-        validation = check_python_code(proposed_code)
+        syntax_check = check_python_code(proposed_code)
 
-        if not validation["valid"]:
+        if not syntax_check["valid"]:
             return {
                 "success": False,
-                "stage": "validation",
-                "error": validation["error"]
+                "stage": "syntax_validation",
+                "error": syntax_check["error"]
+            }
+
+        runtime_check = verify_python_runtime(proposed_code)
+
+        if not runtime_check["valid"]:
+            return {
+                "success": False,
+                "stage": "runtime_validation",
+                "error": runtime_check["error"]
             }
 
         diff = create_diff(
@@ -77,7 +87,8 @@ class SelfUpgradeEngine:
             "target_file": target_file,
             "plan": plan,
             "checkpoint": checkpoint,
-            "validation": validation,
+            "syntax_validation": syntax_check,
+            "runtime_validation": runtime_check,
             "diff": diff,
             "proposed_code": proposed_code
         }
