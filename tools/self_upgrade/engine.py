@@ -6,6 +6,7 @@ from tools.self_upgrade.inspector import read_project_file
 from tools.code_checker import check_python_code
 from tools.self_upgrade.applier import apply_upgrade, rollback_upgrade
 from tools.self_upgrade.approval import request_approval
+from tools.self_upgrade.diff import create_diff
 
 
 class SelfUpgradeEngine:
@@ -44,9 +45,9 @@ class SelfUpgradeEngine:
                 "error": generated["error"]
             }
 
-        validation = check_python_code(
-            generated["code"]
-        )
+        proposed_code = generated["code"]
+
+        validation = check_python_code(proposed_code)
 
         if not validation["valid"]:
             return {
@@ -54,6 +55,12 @@ class SelfUpgradeEngine:
                 "stage": "validation",
                 "error": validation["error"]
             }
+
+        diff = create_diff(
+            current_code,
+            proposed_code,
+            target_file
+        )
 
         checkpoint = create_checkpoint()
 
@@ -71,7 +78,8 @@ class SelfUpgradeEngine:
             "plan": plan,
             "checkpoint": checkpoint,
             "validation": validation,
-            "proposed_code": generated["code"]
+            "diff": diff,
+            "proposed_code": proposed_code
         }
 
     def apply_approved_upgrade(self, preview):

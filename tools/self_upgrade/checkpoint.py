@@ -20,22 +20,21 @@ def create_checkpoint(message="JARVIS pre-upgrade checkpoint"):
                 "error": status.stderr.strip()
             }
 
-        subprocess.run(
-            ["git", "add", "-A"],
-            cwd=PROJECT_ROOT,
-            check=True,
-            timeout=30
-        )
+        if status.stdout.strip():
+            return {
+                "success": False,
+                "error": "Working tree is not clean. Upgrade checkpoint cancelled."
+            }
 
         commit = subprocess.run(
-            ["git", "commit", "-m", message],
+            ["git", "commit", "--allow-empty", "-m", message],
             cwd=PROJECT_ROOT,
             capture_output=True,
             text=True,
             timeout=30
         )
 
-        if commit.returncode not in (0, 1):
+        if commit.returncode != 0:
             return {
                 "success": False,
                 "error": commit.stderr.strip()
@@ -43,7 +42,7 @@ def create_checkpoint(message="JARVIS pre-upgrade checkpoint"):
 
         return {
             "success": True,
-            "message": "Upgrade checkpoint created.",
+            "message": "Clean upgrade checkpoint created.",
             "output": commit.stdout.strip()
         }
 
