@@ -71,17 +71,38 @@ class AgentCore:
             )
 
             if tool_name == "generate_code":
-                execution = self.executor.execute(
-                    tool_name,
-                    (goal,),
-                    self.registry
-                )
+                arguments = (goal,)
+
+            elif tool_name == "self_upgrade_prepare":
+                arguments = (goal,)
+
             else:
                 execution = {
                     "success": False,
                     "tool": tool_name,
                     "error": "Automatic arguments are not implemented yet."
                 }
+                results.append(execution)
+
+                self.state.save(
+                    goal,
+                    "failed",
+                    index + 2,
+                    execution.get("error")
+                )
+
+                return {
+                    "success": False,
+                    "plan": plan,
+                    "tools": tools,
+                    "results": results
+                }
+
+            execution = self.executor.execute(
+                tool_name,
+                arguments,
+                self.registry
+            )
 
             results.append(execution)
 
