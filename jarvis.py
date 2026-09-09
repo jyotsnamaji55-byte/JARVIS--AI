@@ -1,5 +1,6 @@
 import os
 import requests
+from core.brain.router import ask_brain
 
 from core.personality import JARVIS_PERSONALITY
 from core.memory.manager import save_memory, get_memories, delete_memory
@@ -160,33 +161,15 @@ def ask_jarvis(message):
         "content": user_content
     })
 
-    headers = {
-        "Authorization": f"Bearer {os.environ['GROQ_API_KEY']}",
-        "Content-Type": "application/json"
-    }
+    brain_result = ask_brain(messages, timeout=60)
 
-    data = {
-        "model": MODEL,
-        "messages": messages,
-        "temperature": 0.7
-    }
-
-    response = requests.post(
-        API_URL,
-        headers=headers,
-        json=data,
-        timeout=60
-    )
-
-    response.raise_for_status()
-
-    result = response.json()
-
-    if "choices" not in result or not result["choices"]:
-        print("JARVIS: I received an unexpected AI response.")
+    if not brain_result["success"]:
+        print("JARVIS: Both AI providers failed.")
+        print(f"Primary error: {brain_result.get('primary_error')}")
+        print(f"Backup error: {brain_result.get('backup_error')}")
         return
 
-    reply = result["choices"][0]["message"]["content"]
+    reply = brain_result["content"]
 
     messages.append({
         "role": "assistant",
